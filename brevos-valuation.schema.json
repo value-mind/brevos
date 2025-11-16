@@ -1,0 +1,461 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://brevos.org/schema/valuation-1.0.json",
+  "title": "BREVOS 1.0 Valuation",
+  "type": "object",
+  "description": "Bharat Real-Estate Valuation Open Standard (BREVOS) - core valuation schema for India.",
+  "properties": {
+    "brevos_version": {
+      "type": "string",
+      "enum": ["1.0.0"],
+      "description": "BREVOS schema version used to generate this document."
+    },
+    "country_code": {
+      "type": "string",
+      "const": "IN",
+      "description": "ISO 3166-1 alpha-2 country code."
+    },
+    "valuation_id": {
+      "type": "string",
+      "description": "Globally unique ID for this valuation record."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 creation timestamp."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 last update timestamp."
+    },
+    "assignment": {
+      "type": "object",
+      "description": "Lender / client assignment context.",
+      "properties": {
+        "client_type": {
+          "type": "string",
+          "enum": ["bank", "nbfc", "hfc", "insurer", "other"]
+        },
+        "client_name": { "type": "string" },
+        "client_code": { "type": "string" },
+        "assignment_reference": { "type": "string" },
+        "loan_purpose": {
+          "type": "string",
+          "enum": [
+            "home_loan",
+            "lap",
+            "builder_finance",
+            "top_up",
+            "balance_transfer",
+            "corporate_mortgage",
+            "other"
+          ]
+        },
+        "loan_amount_requested": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lvr_target": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        }
+      },
+      "required": ["client_type", "client_name", "assignment_reference", "loan_purpose"]
+    },
+
+    "id_domain": {
+      "type": "object",
+      "description": "BREVOS-ID: property & valuer identity.",
+      "properties": {
+        "property_uid": { "type": "string" },
+        "property_type": {
+          "type": "string",
+          "enum": [
+            "apartment",
+            "villa_rowhouse",
+            "independent_house",
+            "residential_plot",
+            "commercial_unit",
+            "commercial_plot",
+            "industrial_unit",
+            "industrial_land",
+            "mixed_use",
+            "other"
+          ]
+        },
+        "usage_type": {
+          "type": "string",
+          "enum": ["self_occupied", "rented", "vacant", "mixed", "unknown"]
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "door_no": { "type": "string" },
+            "building_name": { "type": "string" },
+            "street": { "type": "string" },
+            "locality": { "type": "string" },
+            "landmark": { "type": "string" },
+            "ward": { "type": "string" },
+            "city": { "type": "string" },
+            "district": { "type": "string" },
+            "state": { "type": "string" },
+            "pincode": { "type": "string" }
+          },
+          "required": ["locality", "city", "state", "pincode"]
+        },
+        "geo": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "source": {
+              "type": "string",
+              "enum": ["field_app", "valuer_manual", "client_provided", "avm", "other"]
+            },
+            "accuracy_m": { "type": "number", "minimum": 0 }
+          }
+        },
+        "valuer": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "registration_type": {
+              "type": "string",
+              "enum": ["ibbi", "bank_panel", "company_internal", "other"]
+            },
+            "registration_number": { "type": "string" },
+            "organisation": { "type": "string" },
+            "contact": { "type": "string" }
+          },
+          "required": ["name", "registration_type"]
+        }
+      },
+      "required": ["property_uid", "property_type", "address", "valuer"]
+    },
+
+    "legal_domain": {
+      "type": "object",
+      "description": "BREVOS-LG: title, encumbrance, approvals.",
+      "properties": {
+        "title_category": {
+          "type": "string",
+          "enum": [
+            "a_khata",
+            "b_khata",
+            "panchayat",
+            "dc_converted",
+            "revenue_site",
+            "gram_panchayat_layout",
+            "government_allotment",
+            "company_lease",
+            "society",
+            "other"
+          ]
+        },
+        "ownership_type": {
+          "type": "string",
+          "enum": ["freehold", "leasehold", "perpetual_lease", "unknown"]
+        },
+        "owners": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "share_percent": { "type": "number", "minimum": 0, "maximum": 100 }
+            },
+            "required": ["name"]
+          }
+        },
+        "ec_summary": {
+          "type": "object",
+          "properties": {
+            "portal_source": { "type": "string" },
+            "document_number": { "type": "string" },
+            "from_year": { "type": "integer" },
+            "to_year": { "type": "integer" },
+            "encumbrance_present": { "type": "boolean" },
+            "ec_document_hash": { "type": "string" }
+          }
+        },
+        "approvals": {
+          "type": "object",
+          "properties": {
+            "layout_approved_by": { "type": "string" },
+            "layout_approval_ref": { "type": "string" },
+            "building_plan_approved_by": { "type": "string" },
+            "building_plan_ref": { "type": "string" },
+            "rera_registration_number": { "type": "string" },
+            "rera_state": { "type": "string" },
+            "oc_cc_status": {
+              "type": "string",
+              "enum": ["oc_available", "cc_available", "applied", "not_available", "not_applicable"]
+            }
+          }
+        },
+        "litigation": {
+          "type": "object",
+          "properties": {
+            "reported": { "type": "boolean" },
+            "summary": { "type": "string" }
+          }
+        },
+        "dues_and_charges": {
+          "type": "object",
+          "properties": {
+            "property_tax_dues": { "type": "boolean" },
+            "maintenance_dues": { "type": "boolean" },
+            "water_electricity_dues": { "type": "boolean" },
+            "remarks": { "type": "string" }
+          }
+        }
+      },
+      "required": ["title_category", "ownership_type"]
+    },
+
+    "physical_domain": {
+      "type": "object",
+      "description": "BREVOS-PC: construction, area, amenities.",
+      "properties": {
+        "land": {
+          "type": "object",
+          "properties": {
+            "plot_area_sqft": { "type": "number", "minimum": 0 },
+            "frontage_ft": { "type": "number", "minimum": 0 },
+            "depth_ft": { "type": "number", "minimum": 0 },
+            "shape": {
+              "type": "string",
+              "enum": ["regular", "irregular", "corner", "flag", "other"]
+            },
+            "road_width_ft": { "type": "number", "minimum": 0 },
+            "road_type": {
+              "type": "string",
+              "enum": ["public", "private", "no_road_access", "other"]
+            },
+            "zoning": {
+              "type": "string",
+              "enum": ["residential", "commercial", "industrial", "mixed_use", "agricultural", "other"]
+            },
+            "fsr_fsi_applicable": { "type": "number", "minimum": 0 }
+          }
+        },
+        "building": {
+          "type": "object",
+          "properties": {
+            "construction_type": {
+              "type": "string",
+              "enum": ["rcc_framed", "load_bearing", "pre_engineered", "other"]
+            },
+            "no_of_floors": { "type": "integer", "minimum": 0 },
+            "age_years": { "type": "number", "minimum": 0 },
+            "condition_grade": {
+              "type": "string",
+              "enum": ["excellent", "good", "average", "below_average", "poor"]
+            },
+            "super_builtup_sqft": { "type": "number", "minimum": 0 },
+            "builtup_sqft": { "type": "number", "minimum": 0 },
+            "carpet_sqft": { "type": "number", "minimum": 0 },
+            "no_of_bedrooms": { "type": "integer", "minimum": 0 },
+            "no_of_bathrooms": { "type": "integer", "minimum": 0 },
+            "parking": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["covered", "open", "stilt", "street"]
+              }
+            }
+          }
+        },
+        "amenities": {
+          "type": "object",
+          "properties": {
+            "gated_community": { "type": "boolean" },
+            "lift": { "type": "boolean" },
+            "power_backup": { "type": "boolean" },
+            "clubhouse": { "type": "boolean" },
+            "security_24x7": { "type": "boolean" },
+            "other_amenities": { "type": "string" }
+          }
+        },
+        "deviations": {
+          "type": "object",
+          "properties": {
+            "observed": { "type": "boolean" },
+            "summary": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "market_domain": {
+      "type": "object",
+      "description": "BREVOS-MR: market data, comparables, AVM.",
+      "properties": {
+        "valuation_currency": {
+          "type": "string",
+          "enum": ["INR"]
+        },
+        "guideline_value_per_sqft": { "type": "number", "minimum": 0 },
+        "market_value": { "type": "number", "minimum": 0 },
+        "distress_value": { "type": "number", "minimum": 0 },
+        "valuer_opinion_value": { "type": "number", "minimum": 0 },
+        "avm_value": { "type": "number", "minimum": 0 },
+        "avm_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "valuation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "rental_yield_percent": { "type": "number", "minimum": 0 },
+        "liquidity_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "comparables": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "properties": {
+              "comp_id": { "type": "string" },
+              "distance_m": { "type": "number", "minimum": 0 },
+              "relationship": {
+                "type": "string",
+                "enum": ["same_project", "same_locality", "similar_micro_market", "other_city_edge"]
+              },
+              "transaction_type": {
+                "type": "string",
+                "enum": ["sale", "resale", "registration_record", "listing", "rental"]
+              },
+              "transaction_date": { "type": "string", "format": "date" },
+              "builtup_sqft": { "type": "number", "minimum": 0 },
+              "consideration_total": { "type": "number", "minimum": 0 },
+              "rate_per_sqft": { "type": "number", "minimum": 0 },
+              "source": {
+                "type": "string",
+                "enum": ["govt_portal", "valuer_scouting", "market_listing", "partner_platform", "other"]
+              },
+              "adjustments_summary": { "type": "string" }
+            },
+            "required": ["distance_m", "transaction_type", "rate_per_sqft", "source"]
+          }
+        }
+      },
+      "required": ["valuation_currency", "valuation_date"]
+    },
+
+    "risk_domain": {
+      "type": "object",
+      "description": "BREVOS-RX: risk scoring and flags.",
+      "properties": {
+        "title_risk_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "location_risk_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "market_risk_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "construction_risk_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "overall_risk_grade": {
+          "type": "string",
+          "enum": ["A", "B", "C", "D", "E"]
+        },
+        "overvaluation_probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "forced_sale_discount_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "comments": { "type": "string" },
+        "evidence_graph_hash": { "type": "string" }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "description": "Links to raw evidence used in valuation.",
+      "properties": {
+        "photos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "format": "uri" },
+              "description": { "type": "string" }
+            },
+            "required": ["url"]
+          }
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "doc_type": { "type": "string" },
+              "url": { "type": "string", "format": "uri" },
+              "hash": { "type": "string" }
+            },
+            "required": ["doc_type", "url"]
+          }
+        },
+        "map_screenshots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "format": "uri" },
+              "source": { "type": "string" }
+            },
+            "required": ["url"]
+          }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "description": "Audit and workflow metadata.",
+      "properties": {
+        "prepared_by": { "type": "string" },
+        "prepared_at": { "type": "string", "format": "date-time" },
+        "reviewed_by": { "type": "string" },
+        "reviewed_at": { "type": "string", "format": "date-time" },
+        "digital_signature": { "type": "string" },
+        "system_source": { "type": "string" },
+        "revision_number": { "type": "integer", "minimum": 1 }
+      }
+    },
+
+    "state_extension": {
+      "type": "object",
+      "description": "State-specific fields. Key is ISO-like state code (e.g. KA, MH, TN, UP).",
+      "additionalProperties": {
+        "type": "object"
+      }
+    }
+  },
+  "required": ["brevos_version", "country_code", "valuation_id", "id_domain", "legal_domain", "market_domain"]
+}

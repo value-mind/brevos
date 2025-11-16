@@ -122,5 +122,5 @@ See `CONTRIBUTING.md` for detailed guidelines.
 
 The BREVOS specification and reference schemas are made available under the **Apache 2.0 License**.
 
-See `LICENSE` for details.
+See `LICENSE` for details. You can contact on valuemind[dot]co[at]gmail[dot]com
   
